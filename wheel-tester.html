@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PhysicsShark | Wheel tester</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#090d0b;color:#e9ece6;font:16px system-ui,sans-serif}main{max-width:800px;margin:auto;padding:40px 20px;text-align:center}h1{font-size:clamp(36px,7vw,64px);letter-spacing:-.05em;margin:8px 0}p{color:#a9b3a9;line-height:1.5}.eyebrow{color:#c9f25a;text-transform:uppercase;letter-spacing:.12em;font-size:12px}.stage{position:relative;width:min(80vw,380px);margin:35px auto}.pointer{position:absolute;top:-15px;left:50%;transform:translateX(-50%);z-index:1;color:#c9f25a;font-size:30px}.wheel{width:100%;aspect-ratio:1;border:7px solid #c9f25a;border-radius:50%;position:relative;background:conic-gradient(#293c27 0deg 60deg,#17211a 60deg 120deg,#354429 120deg 180deg,#182820 180deg 240deg,#3b4c2d 240deg 300deg,#202d20 300deg 360deg);transition:transform 4s cubic-bezier(.12,.7,.15,1)}.wheel span{position:absolute;left:50%;top:50%;width:80px;margin-left:-40px;margin-top:-8px;text-align:center;font-size:13px;font-weight:700;transform:rotate(var(--a)) translateY(-130px) rotate(calc(-1 * var(--a)))}button{font:inherit;font-weight:700;padding:12px 18px;border-radius:7px;cursor:pointer;background:#c9f25a;color:#090d0b;border:0}button:disabled{opacity:.5;cursor:wait}.secondary{color:#e9ece6;background:transparent;border:1px solid #435047}.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.result{min-height:55px;font-size:20px;color:#e9ece6}.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:25px auto;max-width:500px}.count{background:#111713;border:1px solid #29332c;padding:15px;border-radius:6px}.count strong{display:block;color:#c9f25a;font-size:25px}.note{font-size:13px}@media(max-width:450px){.wheel span{transform:rotate(var(--a)) translateY(-100px) rotate(calc(-1 * var(--a)));font-size:11px}}
+  </style>
+  <style>
+    .wheel{--wheel-turn:0deg}.wheel span{font-size:18px;transform:rotate(var(--a)) translateY(-130px) rotate(calc(-1 * (var(--a) + var(--wheel-turn))));transition:transform 4s cubic-bezier(.12,.7,.15,1)}.wheel.spinning span{animation:number-glow .7s ease-in-out infinite alternate}@keyframes number-glow{from{color:#e9ece6;text-shadow:0 0 2px #c9f25a55}to{color:#c9f25a;text-shadow:0 0 12px #c9f25aaa}}@media(max-width:450px){.wheel span{transform:rotate(var(--a)) translateY(-100px) rotate(calc(-1 * (var(--a) + var(--wheel-turn))));font-size:16px}}@media(prefers-reduced-motion:reduce){.wheel.spinning span{animation:none}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">PhysicsShark · test tool</div><h1>Wheel tester</h1>
+  <p>Spin repeatedly and check that the pointer matches the result. This page does not create a team or write to Firebase.</p>
+  <div class="stage"><div class="pointer" aria-hidden="true">▼</div><div class="wheel" id="wheel" aria-hidden="true"><span style="--a:30deg">1</span><span style="--a:90deg">2</span><span style="--a:150deg">3</span><span style="--a:210deg">4</span><span style="--a:270deg">5</span><span style="--a:330deg">6</span></div></div>
+  <div class="result" id="result" role="status" aria-live="polite">Ready to spin.</div>
+  <div class="controls"><button id="spin" type="button">Spin the wheel</button><button class="secondary" id="reset" type="button">Reset counts</button></div>
+  <div class="counts" id="counts" aria-label="Spin counts"></div><p class="note">Each spin is independent. Small samples can contain repeats; counts are kept only while this page is open.</p>
+</main>
+<script>
+const names=['DropZone Drones','BalloonBet','SoftLanding Inc.','OrbitGuard','Paper Jet Labs','RedPlanet Hoppers'];
+const counts=Array(6).fill(0);let angle=0;
+const wheel=document.getElementById('wheel'),spin=document.getElementById('spin'),reset=document.getElementById('reset'),result=document.getElementById('result'),countBox=document.getElementById('counts');
+function chooseCard(){if(globalThis.crypto?.getRandomValues){const draw=new Uint32Array(1);do{crypto.getRandomValues(draw)}while(draw[0]>=4294967292);return draw[0]%names.length}return Math.floor(Math.random()*names.length)}
+function render(){countBox.innerHTML=counts.map((n,i)=>`<div class="count">Card ${i+1}<strong>${n}</strong></div>`).join('')}
+spin.onclick=()=>{const index=chooseCard(),target=(360-(index*60+30))%360;angle+=1800+(target-(angle%360)+360)%360;spin.disabled=true;reset.disabled=true;result.textContent='Spinning…';wheel.classList.add('spinning');wheel.style.setProperty('--wheel-turn',`${angle}deg`);wheel.style.transform=`rotate(${angle}deg)`;setTimeout(()=>{wheel.classList.remove('spinning');counts[index]++;render();result.textContent=`Card ${index+1} — ${names[index]}`;spin.disabled=false;reset.disabled=false},4000)};
+reset.onclick=()=>{counts.fill(0);render();result.textContent='Counts reset.'};render();
+</script>
+</body>
+</html>
