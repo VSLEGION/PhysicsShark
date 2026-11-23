@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10151c" />
+  <title>PhysicsShark | AE 107 Lab Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root{--ink:#e9ece6;--muted:#9ca69c;--paper:#090d0b;--card:#111713;--line:#29332c;--orange:#c9f25a;--yellow:#d7f679;--blue:#c9f25a;--green:#b8e95a}
+    body{background:var(--paper);color:var(--ink)}
+    .topbar{border-color:var(--line)}.brand-mark{background:var(--orange);color:#090d0b}.brand{color:var(--ink)}
+    .hero{max-width:900px}.hero-copy{color:var(--muted)}h1{font-size:clamp(52px,9vw,112px);letter-spacing:-.09em;text-transform:uppercase}h1 em{font-family:Georgia,serif;color:var(--orange);text-transform:none}.hero-meta span:first-child{color:var(--orange)}
+    .mode-switcher{background:#151c17}.mode-button{color:var(--muted)}.mode-button.is-active{background:var(--orange);color:#090d0b}
+    .section-heading{border-color:var(--line)}.field small,.helper-copy{color:var(--muted)}input,textarea,select{background:var(--card);color:var(--ink);border-color:var(--line)}input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:0 0 0 3px #c9f25a25}
+    .small-button,.secondary-button{background:transparent;color:var(--ink);border-color:var(--line)}.small-button:hover,.secondary-button:hover{border-color:var(--orange);color:var(--orange)}.primary-button{background:var(--orange);color:#090d0b}.primary-button:hover{background:#d7f679}
+    .member-row,.host-card{background:var(--card);border-color:var(--line)}.notice{background:#182014;border-color:#3c4d27}.notice p{color:#d4e0c4}.notice-icon{background:var(--orange);color:#090d0b}.empty-state{background:#111713}.pill{background:#202a22;color:#c5cec3}.pill.shark{background:#2d3a1f;color:var(--orange)}footer{border-color:var(--line)}
+  </style>
+  <!-- Optional shared storage: add Firebase compat scripts here and a config in app.js. -->
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="PhysicsShark home"><span class="brand-mark">P</span><span>PhysicsShark</span></a>
+      <div class="topbar-actions">
+        <span id="connectionBadge" class="connection-badge"><i></i> Local workspace</span>
+        <button class="text-button" id="resetButton" type="button">Reset</button>
+      </div>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="eyebrow">AE107 · Shark Tank: Aero Edition</div>
+      <h1>Build your crew.<br><em>Pitch the physics.</em></h1>
+      <p class="hero-copy">Discuss the challenge together, then have one teammate enter the full crew, roles, and Shark nominee for your aerospace startup.</p>
+      <div class="hero-meta"><span>01 / CREATE</span><span>02 / SOLVE</span><span>03 / PITCH</span></div>
+    </section>
+
+    <div class="mode-switcher" role="tablist" aria-label="App mode">
+      <button class="mode-button is-active" data-mode="team" role="tab" aria-selected="true">Team workspace</button>
+      <button class="mode-button" data-mode="host" role="tab" aria-selected="false">Host dashboard</button>
+    </div>
+
+    <section id="teamView" class="view active-view" aria-labelledby="teamTitle">
+      <div class="section-heading"><div><div class="eyebrow">One teammate enters for the group</div><h2 id="teamTitle">Your team, in one snapshot.</h2></div><span class="step-label">TEAM FORMATION</span></div>
+      <form id="teamForm" novalidate>
+        <div class="form-grid two-col">
+          <label class="field"><span>Team name</span><input id="teamName" required maxlength="40" placeholder="e.g. Vector Vanguard" /></label>
+          <label class="field"><span>Team / room code <small>from your host</small></span><input id="roomCode" required maxlength="12" placeholder="e.g. AERO-27" /></label>
+        </div>
+        <label class="field"><span>Challenge card <small>drawn by your team</small></span><select id="challengeCard" required><option value="">Choose your card</option><option>Card 1 — DropZone Drones</option><option>Card 2 — BalloonBet</option><option>Card 3 — SoftLanding Inc.</option><option>Card 4 — OrbitGuard</option><option>Card 5 — Paper Jet Labs</option><option>Card 6 — RedPlanet Hoppers</option></select></label>
+        <label class="field"><span>One-line team thesis <small>What will you prove?</small></span><input id="teamThesis" required maxlength="100" placeholder="We turn drag into a design advantage." /></label>
+        <label class="field"><span>Lab section <small>optional</small></span><input id="labSection" maxlength="40" placeholder="e.g. Tuesday morning" /></label>
+        <div class="member-header"><div><div class="eyebrow">The crew</div><h3>Choose roles and skill levels</h3><p class="helper-copy">Add everyone on your team. Roles may be shared or combined.</p></div><button type="button" class="small-button" id="addMemberButton">+ Add member</button></div>
+        <div id="memberList" class="member-list"></div>
+        <div class="notice"><span class="notice-icon">!</span><p><strong>Nominate one Shark.</strong> Pick the teammate who will deliver the 3-minute pitch and field 2 minutes of questions with the host.</p></div>
+        <div class="form-actions"><span id="teamStatus" class="form-status" role="status"></span><button class="primary-button" type="submit">Save team <span>↗</span></button></div>
+      </form>
+    </section>
+
+    <section id="hostView" class="view" aria-labelledby="hostTitle">
+      <div class="section-heading"><div><div class="eyebrow">Instructor controls</div><h2 id="hostTitle">Run the room.</h2></div><span class="step-label">HOST MODE</span></div>
+      <div class="host-grid">
+        <div class="host-card setup-card"><div class="card-label">Live room</div><div class="room-code-display" id="hostRoomCode">----</div><p>Share this same code with all three lab sections today. Entries appear here when shared storage is configured.</p><div class="host-controls"><button class="primary-button" id="newRoomButton" type="button">New room <span>↗</span></button><button class="secondary-button" id="copyCodeButton" type="button">Copy code</button></div></div>
+        <div class="host-card prompt-card"><div class="card-label">Challenge prompt</div><label class="field"><span>What are they solving?</span><textarea id="challengePrompt" rows="4" placeholder="Design a vehicle that crosses the lab using only a falling mass..."></textarea></label><button class="secondary-button" id="savePromptButton" type="button">Save prompt</button></div>
+      </div>
+      <div class="dashboard-toolbar"><div><div class="eyebrow">Submissions</div><h3 id="submissionCount">0 teams ready</h3></div><div class="toolbar-actions"><button class="secondary-button" id="exportButton" type="button">Export JSON</button><button class="secondary-button" id="importButton" type="button">Import JSON</button><input id="importFile" type="file" accept="application/json" hidden></div></div>
+      <div id="submissions" class="submissions empty-state"><div class="empty-icon">∅</div><h3>No teams yet</h3><p>Team submissions will collect here. In local mode, use Export JSON to move the room data between computers.</p></div>
+    </section>
+
+    <footer><span>PhysicsShark / AE 107 Lab Game</span><span>Built for the lab</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
